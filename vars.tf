@@ -1,5 +1,9 @@
 variable "ec2_name" {
-  default = "Tims Variable Name"
+  type = "map"
+  default = {
+    "1"   = "Instance A for Tim"
+    "2"   = "Instance B for Tim"
+  }
 }
 
 variable "region" {
@@ -7,5 +11,9 @@ variable "region" {
 }
 
 variable "ami_id" {
-  default = "ami-00f03cfdc90a7a4dd"
+  default = "ami-00c03f7f7f2ec15c3"
+}
+
+variable "aws_vpc_id" {
+  default = "vpc-f1295c98"
 }

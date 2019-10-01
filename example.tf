@@ -3,16 +3,66 @@ provider "aws" {
   region    = "${var.region}"
 }
 
-resource "aws_instance" "tims-example" {
-  ami     = "${var.ami_id}"
-  instance_type = "t2.micro"
-  iam_instance_profile = "${aws_iam_instance_profile.tims_profile.name}"
-  associate_public_ip_address = false
+resource "aws_subnet" "main" {
+  vpc_id  = "${var.aws_vpc_id}"
+  cidr_block    = "172.31.48.0/28"
+
   tags = {
-    Name = "${var.ec2_name}"
     Owner = "Tim Krupinski"
   }
 }
+
+resource "aws_network_interface" "eni_A" {
+  subnet_id = "${aws_subnet.main.id}"
+  security_groups = ["${aws_security_group.tims_sg.id}"]
+}
+
+resource "aws_network_interface" "eni_B" {
+  subnet_id = "${aws_subnet.main.id}"
+  security_groups = ["${aws_security_group.tims_sg.id}"]
+}
+
+
+resource "aws_instance" "Instance_A" {
+  ami     = "${var.ami_id}"
+  instance_type = "t2.micro"
+  iam_instance_profile = "${aws_iam_instance_profile.tims_profile.name}"
+  network_interface {
+    network_interface_id  = "${aws_network_interface.eni_A.id}"
+    device_index          = 0
+  }
+  tags = {
+    Name = "${var.ec2_name["1"]}"
+    Owner = "Tim Krupinski"
+  }
+}
+
+resource "aws_instance" "Instance_B" {
+  ami     = "${var.ami_id}"
+  instance_type = "t2.micro"
+  iam_instance_profile = "${aws_iam_instance_profile.tims_profile.name}"
+  network_interface {
+    network_interface_id  = "${aws_network_interface.eni_B.id}"
+    device_index          = 0
+  }
+  tags = {
+    Name = "${var.ec2_name["2"]}"
+    Owner = "Tim Krupinski"
+  }
+}
+
+resource "aws_security_group" "tims_sg" {
+  name  = "Tims SG"
+  description   = "Allow intra-ec2 traffic"
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    self        = true
+    protocol    = -1
+  }
+}
+
 
 resource "aws_iam_role" "role" {
   name  = "TimsEC2Role"
