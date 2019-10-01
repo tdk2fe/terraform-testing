@@ -1,24 +1,15 @@
 provider "aws" {
   profile   = "default"
-  region    = var.region
+  region    = "${var.region}"
 }
 
 resource "aws_instance" "tims-example" {
-  ami     = "ami-00c03f7f7f2ec15c3"
+  ami     = "${var.ami_id}"
   instance_type = "t2.micro"
-  depends_on = [aws_s3_bucket.tims-bucket]
-  iam_instance_profile = aws_iam_instance_profile.tims_profile.name
+  iam_instance_profile = "${aws_iam_instance_profile.tims_profile.name}"
   associate_public_ip_address = false
   tags = {
-    Name = var.ec2_name
-    Owner = "Tim Krupinski"
-  }
-}
-
-resource "aws_s3_bucket" "tims-bucket" {
-  bucket = "e785vs-tims-bucket"
-  acl = "private"
-  tags = {
+    Name = "${var.ec2_name}"
     Owner = "Tim Krupinski"
   }
 }
